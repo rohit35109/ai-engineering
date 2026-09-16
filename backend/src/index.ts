@@ -35,7 +35,6 @@ app.post("/api/chat/stream", async (req: Request, res: Response) => {
     const reader = stream.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
-
     while (true) {
         const { done, value } = await reader.read();
         if (done) break;
