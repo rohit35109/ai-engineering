@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import express, { Express, Request, Response } from "express";
+import { askOllama } from "./ollama";
 
 dotenv.config();
 
@@ -8,11 +9,13 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// Sample Route
-app.get("/", (req: Request, res: Response) => {
-  res.json({ message: "Welcome to the Express + TypeScript Server!" });
+app.post("/api/chat", async (req: Request, res: Response) => {
+    const prompt = req.body.prompt || null;
+    console.log(prompt);
+    const result = await askOllama(req.body.prompt);
+    res.json(result);
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on port http://localhost:${port}`);
 });
