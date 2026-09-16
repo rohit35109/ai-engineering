@@ -1,10 +1,14 @@
 export interface OllamaResponse {
     answer: string;
-    metrics: OllamaMetrics
+    metrics: OllamaMetrics;
+    reason: string;
 }
 
 interface OllamaMetrics {
-    inputTokens: number;
+    totalDurationInSeconds: number;
+    generationDurationSeconds: number;
     outputTokens: number;
-    totalDurationNs: number;
+    promptProcessingDurationSeconds: number;
+    inputTokens: number;
+    loadDurationInSeconds: number;
 }

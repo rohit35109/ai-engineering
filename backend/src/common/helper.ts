@@ -1,0 +1,1 @@
+export const convertNsToSeconds = (ns: number) => ns / 1_000_000_000;

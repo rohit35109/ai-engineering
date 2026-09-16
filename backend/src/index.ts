@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 import express, { Express, Request, Response } from "express";
-import { askOllama } from "./ollama";
+import { askOllama, askOllamaStream } from "./ollama";
+import { OllamaResponse } from "./interface/OllamaResponse";
+import { convertNsToSeconds } from "./common/helper";
 
 dotenv.config();
 
@@ -9,11 +11,79 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
+// For non stream
 app.post("/api/chat", async (req: Request, res: Response) => {
-    const prompt = req.body.prompt || null;
-    console.log(prompt);
-    const result = await askOllama(req.body.prompt);
-    res.json(result);
+  const prompt = req.body.prompt || null;
+  console.log(prompt);
+  const result = await askOllama(req.body.prompt);
+  res.json(result as OllamaResponse);
+});
+
+app.post("/api/chat/stream", async (req: Request, res: Response) => {
+  const { prompt } = req.body;
+  if (typeof prompt !== "string" || !prompt.trim()) {
+    res.status(400).json({ error: "Prompt must be non empty string" });
+  }
+
+  try {
+    const stream = await askOllamaStream(prompt);
+
+    res.setHeader("Content-Type", "application/x-ndjson");
+    res.setHeader("Cache-Control", "no-cache");
+    res.flushHeaders();
+
+    const reader = stream.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+            if (!line.trim()) continue;
+            const chunk = JSON.parse(line);
+            if (chunk.done) {
+                res.write(
+                    `${JSON.stringify({
+                        type: "done",
+                        metrics: {
+                            totalDurationInSeconds: convertNsToSeconds(chunk.total_duration),
+                            loadDurationInSeconds: convertNsToSeconds(chunk.load_duration),
+                            inputTokens: chunk.prompt_eval_count,
+                            promptProcessingDurationSeconds: convertNsToSeconds(chunk.prompt_eval_duration),
+                            outputTokens: chunk.eval_count,
+                            generationDurationSeconds: convertNsToSeconds(chunk.eval_duration),
+                        }
+                    })}\n`
+                );
+            } else if (chunk.response) {
+                res.write(`${JSON.stringify({
+                    type: "token",
+                    value: chunk.response
+                })}\n`)
+            }
+        }
+    }
+    res.end();
+  }
+  catch (e) {
+    console.error(e);
+    if (res.headersSent) {
+        res.write(`${JSON.stringify({
+            type: "error",
+            message: "Stream failed"
+        })}\n`);
+        res.end();
+        return;
+    }
+    res.status(502).json({ error: "Could not reach ollama" })
+  }
+
+  res.json();
 });
 
 app.listen(port, () => {
