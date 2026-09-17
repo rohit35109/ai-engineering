@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import express, { Express, Request, Response } from "express";
-import { askOllama, askOllamaStream } from "./ollama";
-import { OllamaResponse } from "./interface/OllamaResponse";
+import { askOllama, askOllamaChat, askOllamaStream } from "./ollama";
+import { OllamaChatResponse, OllamaResponse } from "./interface/OllamaResponse";
 import { convertNsToSeconds } from "./common/helper";
 
 dotenv.config();
@@ -13,10 +13,14 @@ app.use(express.json());
 
 // For non stream
 app.post("/api/chat", async (req: Request, res: Response) => {
-  const prompt = req.body.prompt || null;
-  console.log(prompt);
-  const result = await askOllama(req.body.prompt);
-  res.json(result as OllamaResponse);
+  const { messages } = req.body
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return res.status(400).json({ error: "messages must be a non-empty array" });
+  }
+  // const result = await askOllama(req.body.prompt);
+  const result = await askOllamaChat(messages);
+  // res.json(result as OllamaResponse);
+  res.json(result as OllamaChatResponse);
 });
 
 app.post("/api/chat/stream", async (req: Request, res: Response) => {
