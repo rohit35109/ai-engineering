@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
-import express, { Express, Request, Response } from "express";
-import { askOllama, askOllamaChat, askOllamaStream } from "./ollama";
-import { OllamaChatResponse, OllamaResponse } from "./interface/OllamaResponse";
+import express, { Request, Response } from "express";
+import { askOllamaChat, askOllamaStream } from "./ollama";
+import { OllamaChatResponse } from "./interface/OllamaResponse";
 import { convertNsToSeconds } from "./common/helper";
 
 dotenv.config();
