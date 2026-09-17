@@ -1,16 +1,37 @@
 import { convertNsToSeconds } from "./common/helper";
 import { OllamaChatResponse, OllamaRequest, OllamaResponse } from "./interface/OllamaResponse";
 
-export async function askOllamaStream(prompt: string): Promise<ReadableStream<Uint8Array>> {
-    const response = await fetch("http://localhost:11434/api/generate", {
+// export async function askOllamaStream(prompt: string): Promise<ReadableStream<Uint8Array>> {
+//     const response = await fetch("http://localhost:11434/api/generate", {
+//         method: "POST",
+//         headers: {
+//             "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({
+//             model: "llama3.2",
+//             prompt,
+//             stream: true
+//         })
+//     });
+//     if (!response.ok) {
+//         throw new Error(`Ollama returned ${response.status}`);
+//     }
+//     if (!response.body) {
+//         throw new Error("Ollama returned no response body")
+//     }
+//     return response.body;
+// }
+
+export async function askOllamaChatStream(messages: OllamaRequest[]): Promise<ReadableStream<Uint8Array>> {
+    const response = await fetch("http://localhost:11434/api/chat", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
             model: "llama3.2",
-            prompt,
-            stream: true
+            stream: true,
+            messages,
         })
     });
     if (!response.ok) {
