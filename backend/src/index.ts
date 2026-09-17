@@ -13,7 +13,7 @@ app.use(express.json());
 
 // For non stream
 app.post("/api/chat", async (req: Request, res: Response) => {
-  const { messages } = req.body
+  const { messages } = req.body;
   if (!Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: "messages must be a non-empty array" });
   }
