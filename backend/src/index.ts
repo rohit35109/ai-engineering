@@ -23,6 +23,7 @@ app.post("/api/chat", async (req: Request, res: Response) => {
   res.json(result as OllamaChatResponse);
 });
 
+
 app.post("/api/chat/stream", async (req: Request, res: Response) => {
   const { messages } = req.body;
   if (!Array.isArray(messages) || messages.length === 0) {
