@@ -29,7 +29,6 @@ app.post("/api/chat/stream", async (req: Request, res: Response) => {
   if (!Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: "messages must be a non-empty array" });
   }
-
   try {
     const stream = await askOllamaChatStream(messages);
 
