@@ -84,8 +84,6 @@ app.post("/api/chat/stream", async (req: Request, res: Response) => {
     }
     res.status(502).json({ error: "Could not reach ollama" })
   }
-
-  res.json();
 });
 
 // app.post("/api/chat/stream", async (req: Request, res: Response) => {

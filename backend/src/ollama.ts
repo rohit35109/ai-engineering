@@ -1,6 +1,10 @@
 import { convertNsToSeconds } from "./common/helper";
 import { OllamaChatResponse, OllamaRequest, OllamaResponse } from "./interface/OllamaResponse";
 
+const CHAT_MODEL = "llama3.2";
+const EXTRACTION_TEMPERATURE = 0;
+
+
 // export async function askOllamaStream(prompt: string): Promise<ReadableStream<Uint8Array>> {
 //     const response = await fetch("http://localhost:11434/api/generate", {
 //         method: "POST",
@@ -29,9 +33,12 @@ export async function askOllamaChatStream(messages: OllamaRequest[]): Promise<Re
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            model: "llama3.2",
+            model: CHAT_MODEL,
             stream: true,
             messages,
+            options: {
+                temperature: EXTRACTION_TEMPERATURE
+            }
         })
     });
     if (!response.ok) {
@@ -52,9 +59,12 @@ export async function askOllama(prompt: string): Promise<OllamaResponse | null> 
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                model: "llama3.2",
+                model: CHAT_MODEL,
                 prompt,
-                stream: false
+                stream: false,
+                options: {
+                    temperature: EXTRACTION_TEMPERATURE
+                }
             })
         });
         if (!response.ok) {
@@ -86,9 +96,12 @@ export async function askOllamaChat(messages: OllamaRequest[]): Promise<OllamaCh
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                model: "llama3.2",
+                model: CHAT_MODEL,
                 stream: false,
                 messages,
+                options: {
+                    temperature: EXTRACTION_TEMPERATURE
+                }
             })
         });
         if (!response.ok) {
@@ -114,3 +127,6 @@ export async function askOllamaChat(messages: OllamaRequest[]): Promise<OllamaCh
         throw new Error(e.message)
     }
 }
+
+
+
